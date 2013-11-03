@@ -6,7 +6,10 @@
 //
 
 #import <UIKit/UIKit.h>
+@class SpinIAPView;
 
 @interface SpinViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet SpinIAPView *spinIAPView;
 
 @end

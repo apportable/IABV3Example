@@ -9,10 +9,12 @@
 
 #import "SpinIAPView.h"
 
-@interface SpinIAPView()
-    
-@property (nonatomic, retain) SKProductsRequest *productsRequest;
-@property (nonatomic, retain) SKProductsResponse *productsList;
+@interface SpinIAPView() {
+    NSMutableArray *_buttons;
+    NSMutableDictionary *_buttonToProduct;
+    SKProductsRequest *_productsRequest;
+    SKProductsResponse *_productsList;
+}
 
 @end
 
@@ -38,99 +40,52 @@
     return self;
 }
 
-- (void)dealloc {
-    [_productsRequest release];
-    [_productsList release];
-    [super dealloc];
-}
 
 - (void)initView
 {    
+    _buttons = [NSMutableArray array];
+    _buttonToProduct = [NSMutableDictionary dictionary];
     [self setBackgroundColor:[UIColor grayColor]];
     NSLog(@"-------------------------initWithView");
     
-    UIButton *restoreButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    NSString *str1 = @"restore purchases";
-    [restoreButton setTitle:str1 forState:UIControlStateNormal];
-    [restoreButton setTitle:str1 forState:UIControlStateHighlighted];
-    [restoreButton setTitle:str1 forState:UIControlStateSelected];
-    [restoreButton setTitleColor:[UIColor greenColor] forState:UIControlStateNormal];
-    [restoreButton setTitleColor:[UIColor greenColor] forState:UIControlStateHighlighted];
-    [restoreButton setTitleColor:[UIColor greenColor] forState:UIControlStateSelected];
-    [restoreButton setFrame:CGRectMake(10.0, 10.0, 150, 44)];
-    [restoreButton setBackgroundColor:[UIColor redColor]];
-    [self addSubview:restoreButton];
-    [restoreButton addTarget:self action:@selector(restorePurchases) forControlEvents:UIControlEventTouchUpInside];
-    
-    UIButton *purchaseFirst = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    NSString *str2 = @"purchase item 1";
-    [purchaseFirst setTitle:str2 forState:UIControlStateNormal];
-    [purchaseFirst setTitle:str2 forState:UIControlStateHighlighted];
-    [purchaseFirst setTitle:str2 forState:UIControlStateSelected];
-    [purchaseFirst setTitleColor:[UIColor greenColor] forState:UIControlStateNormal];
-    [purchaseFirst setTitleColor:[UIColor greenColor] forState:UIControlStateHighlighted];
-    [purchaseFirst setTitleColor:[UIColor greenColor] forState:UIControlStateSelected];
-    [purchaseFirst setFrame:CGRectMake(10.0, 70.0, 150, 44)];
-    [purchaseFirst setBackgroundColor:[UIColor redColor]];
-    [self addSubview:purchaseFirst];
-    [purchaseFirst addTarget:self action:@selector(purchaseFirstItem) forControlEvents:UIControlEventTouchUpInside];
-    
-    UIButton *purchaseSecond = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    NSString *str3 = @"purchase item 2";
-    [purchaseSecond setTitle:str3 forState:UIControlStateNormal];
-    [purchaseSecond setTitle:str3 forState:UIControlStateHighlighted];
-    [purchaseSecond setTitle:str3 forState:UIControlStateSelected];
-    [purchaseSecond setTitleColor:[UIColor greenColor] forState:UIControlStateNormal];
-    [purchaseSecond setTitleColor:[UIColor greenColor] forState:UIControlStateHighlighted];
-    [purchaseSecond setTitleColor:[UIColor greenColor] forState:UIControlStateSelected];
-    [purchaseSecond setFrame:CGRectMake(10.0, 130.0, 150, 44)];
-    [purchaseSecond setBackgroundColor:[UIColor redColor]];
-    [self addSubview:purchaseSecond];
-    [purchaseSecond addTarget:self action:@selector(purchaseSecondItem) forControlEvents:UIControlEventTouchUpInside];
-    
-    double delayInSeconds = 0.0;
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+
+    double delayInSeconds = 3.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
         [self requestProductData];
+#ifdef APPORTABLE
+        //on IABv3, restoring purchases is cheap. 
+        //we should do this to find any consumable purchases that are consumable 
+        //and consume them before the user buys again to prevent errors
+        [self restorePurchases];
+#endif
     });
 }
 
 - (void)requestProductData
 {
-    NSSet *productIdentifiers = [NSSet setWithObjects:@"com.apportable.spin.consumable1", @"com.apportable.spin.nonconsumable1", nil];
-    [self setProductsRequest: [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers]];
-    [[self productsRequest] setDelegate:self];
+    NSMutableSet *productIdentifiers = [NSMutableSet set];
+    [productIdentifiers addObject:@"com.apportable.spin.nonconsumable1"];
+    for (int i=1;i<=10;i++){
+        [productIdentifiers addObject:[NSString stringWithFormat:@"com.apportable.spin.consumable%d",i]];
+    }
+    _productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
+    [_productsRequest setDelegate:self];
     
-    NSLog(@"Requesting IAP product data...");
-    [[self productsRequest] start];
+    NSLog(@"Requesting IAP product data... %@", _productsRequest);
+    [_productsRequest start];
 }
 
-- (void)purchaseFirstItem
+- (void)purchaseItem:(UIButton *)sender
 {
-    NSArray *products = [[self productsList] products];
-    if ([products count]) {
-        NSLog(@"purchasing first item");
-        SKPayment *payment = [SKPayment paymentWithProduct:[products objectAtIndex:0]];
-        [[SKPaymentQueue defaultQueue] addPayment:payment];
-    } else {
-        NSLog(@"NOT purchasing first item, products count:%u", [products count]);
-    }
+    SKProduct *product = _buttonToProduct[[NSValue valueWithNonretainedObject:sender]];
+    NSLog(@"purchasing product %@", product);
+    SKPayment *payment = [SKPayment paymentWithProduct:product];
+    [[SKPaymentQueue defaultQueue] addPayment:payment];
 }
 
-- (void)purchaseSecondItem
-{
-    NSArray *products = [[self productsList] products];
-    if ([products count] > 1) {
-        NSLog(@"purchasing second item");
-        SKPayment *payment = [SKPayment paymentWithProduct:[products objectAtIndex:1]];
-        [[SKPaymentQueue defaultQueue] addPayment:payment];
-    } else {
-        NSLog(@"NOT purchasing second item, products count:%u", [products count]);
-    }
-}
-
-- (void)restorePurchases
+-(void)restorePurchases
 {
     NSLog(@"restoring purchases");
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -142,7 +97,18 @@
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
-    [self setProductsList:response];
+    for (UIButton *button in _buttons){
+        [button removeFromSuperview];
+    }
+    [_buttons removeAllObjects];
+    [_buttonToProduct removeAllObjects];
+    
+    _productsList = response;
+    
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+    [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+    
     NSArray *products = response.products;
     for (int i=0; i < [products count]; ++i) {
         SKProduct *product = [products objectAtIndex:i];
@@ -152,6 +118,17 @@
             NSLog(@"Product description: %@" , product.localizedDescription);
             NSLog(@"Product price: %@" , product.price);
             NSLog(@"Product price locale: %@" , product.priceLocale);
+            NSString *price;
+#ifdef APPORTABLE
+            price = [product performSelector:@selector(_priceString)];
+#else
+            [numberFormatter setLocale:product.priceLocale];
+            price = [numberFormatter stringFromNumber:product.price];
+#endif
+            UIButton *button = [self addProductButtonWithName:product.productIdentifier price:price];
+            [button setFrame:CGRectMake(10.0, 10.0 + (i*50.0), 300, 44)];
+            [_buttons addObject:button];
+            [_buttonToProduct setObject:product forKey:[NSValue valueWithNonretainedObject:button]];
         }
     }
     
@@ -161,13 +138,28 @@
 }
 
 
+-(UIButton *)addProductButtonWithName:(NSString *)product price:(NSString *)price {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    NSString *str = product;
+    [button setTitle:str forState:UIControlStateNormal];
+    [button setTitle:str forState:UIControlStateHighlighted];
+    [button setTitle:str forState:UIControlStateSelected];
+    [button setTitleColor:[UIColor greenColor] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor greenColor] forState:UIControlStateHighlighted];
+    [button setTitleColor:[UIColor greenColor] forState:UIControlStateSelected];
+    [button setBackgroundColor:[UIColor redColor]];
+    [self addSubview:button];
+    [button addTarget:self action:@selector(purchaseItem:) forControlEvents:UIControlEventTouchUpInside];
+    return button;
+}
+
 #pragma mark -
 #pragma mark SKPaymentTransactionObserver methods
 
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
     NSLog(@"----------------------------paymentQueue:updatedTransactions:");
-    
+    BOOL finish = YES;
     for (SKPaymentTransaction *txn in transactions) {
         switch (txn.transactionState) {
             case SKPaymentTransactionStatePurchasing:
@@ -175,6 +167,18 @@
                 break;
             case SKPaymentTransactionStatePurchased:
                 NSLog(@"SKPaymentTransactionStatePurchased: %@", txn);
+#ifdef APPORTABLE
+                //in your app, you are going to have to know if the product is consumable or not.
+                // in my test app, all consumable products have consumable in the product identifier
+                if ([[[txn payment] productIdentifier] rangeOfString:@".consumable"].location != NSNotFound) {
+                    NSLog(@"consuming product");
+                    finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
+                    if (!finish){
+                        NSLog(@"unable to consume product");
+                    }
+                }
+#endif
+
                 break;
             case SKPaymentTransactionStateFailed:
                 NSLog(@"SKPaymentTransactionStateFailed: %@", txn);
@@ -183,12 +187,27 @@
                 NSLog(@"SKPaymentTransactionStateRestored: %@", txn);
                 NSLog(@"Original transaction: %@", [txn originalTransaction]);
                 NSLog(@"Original transaction payment: %@", [[txn originalTransaction] payment]);
+#ifdef APPORTABLE
+                //so deal with races, you should give credit here incase you haven't. it's up to you to give credit.
+                //in your app, you are going to have to know if the product is consumable or not.
+                //in my test app, all consumable products have consumable in the product identifier
+                if ([[[txn payment] productIdentifier] rangeOfString:@".consumable"].location != NSNotFound) {
+                    NSLog(@"consuming product");
+                    finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
+                    if (!finish){
+                        NSLog(@"unable to consume product");
+                    }
+                }
+#endif
+
                 break;
             default:
                 NSLog(@"UNKNOWN SKPaymentTransactionState: %@", txn);
                 break;
         }
-        [[SKPaymentQueue defaultQueue] finishTransaction:txn];
+        if (finish) {
+            [[SKPaymentQueue defaultQueue] finishTransaction:txn];
+        }
     }
 }
 

@@ -15,14 +15,6 @@
         {
             "asset": "Spin/Default-568h@2x.png", 
             "target": "Default-568h@2x.png"
-        }, 
-        {
-            "asset": "Spin/SpinViewController.xib", 
-            "target": null
-        }, 
-        {
-            "asset": "Spin/SpinIAPViewController.xib", 
-            "target": null
         }
     ], 
     "config": {
@@ -51,6 +43,10 @@
     ], 
     "flags": [
         "-DNS_BLOCK_ASSERTIONS=1", 
+        {
+            "flag": "-DNS_BLOCK_ASSERTIONS=1", 
+            "type": "c++"
+        }, 
         "-fobjc-arc", 
         "-fasm-blocks", 
         {
@@ -155,6 +151,22 @@
         {
             "header_path": "Spin.approj/targets/Spin", 
             "type": "iquote"
+        }, 
+        {
+            "header_path": "/var/folders/9z/yb2g6_ds1_3cbc5q74cc9jjc0000gn/T/tmphK06I4/BUILT_PRODUCTS_DIR/include", 
+            "type": "I"
+        }, 
+        {
+            "header_path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include", 
+            "type": "I"
+        }, 
+        {
+            "header_path": "/var/folders/9z/yb2g6_ds1_3cbc5q74cc9jjc0000gn/T/tmphK06I4/DERIVED_FILE_DIR/armv7", 
+            "type": "I"
+        }, 
+        {
+            "header_path": "/var/folders/9z/yb2g6_ds1_3cbc5q74cc9jjc0000gn/T/tmphK06I4/DERIVED_FILE_DIR", 
+            "type": "I"
         }
     ], 
     "infoplists": [
@@ -202,7 +214,19 @@
             "source": "Spin/main.m"
         }
     ], 
+    "storyboards": [], 
     "type": "app", 
-    "version": "1", 
-    "xcode_project": "Spin.xcodeproj"
+    "version": "3", 
+    "xcdatamodels": [], 
+    "xcode_project": "Spin.xcodeproj", 
+    "xibs": [
+        {
+            "target": null, 
+            "xib": "Spin/SpinViewController.xib"
+        }, 
+        {
+            "target": null, 
+            "xib": "Spin/SpinIAPViewController.xib"
+        }
+    ]
 }

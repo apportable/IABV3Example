@@ -2,16 +2,19 @@ IABV3Example
 ============
 
 To enable the IABv3 flow do one of the following:
-1. Add APGoogleIABV3Transitional to your info.plist and set it to true. 
-2. Set GOOGLEIABV3=yes when compiling and it will append APGoogleIABV3Transitional to your info.plist when compiling. 
-3. Add "GOOGLEIABV3":true in the options for configuration.json
+
+1.  Add APGoogleIABV3Transitional to your info.plist and set it to true. 
+2.  Set GOOGLEIABV3=yes when compiling and it will append APGoogleIABV3Transitional to your info.plist when compiling. 
+3.  Add "GOOGLEIABV3":true in the options for configuration.json
 
 
 Finally, to consume purchases, we have created an API:
 
+```
 @interface SKPaymentQueue(Apportable)
 - (BOOL)consumePurchase:(SKPaymentTransaction *)transaction;
 @end
+```
 
 We recommend calling that method before calling -[queue finishTransaction:] on the consumable. We also recommend waiting to call finishTransaction: until you receive YES from the consumePurchase: call.
 

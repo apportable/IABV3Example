@@ -19,7 +19,7 @@
     ], 
     "config": {
         "APPLICATION_FULL_NAME": "Spin", 
-        "APPLICATION_IDENTIFIER": "com.zbowling.Spin", 
+        "APPLICATION_IDENTIFIER": "com.apportable.SpinInternal.IABv3", 
         "APPLICATION_NAME": "Spin", 
         "FEATURES": [
             "portrait", 

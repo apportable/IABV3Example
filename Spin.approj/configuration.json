@@ -20,7 +20,7 @@
     // The unique identifier for the application.
     // Normally this is in reverse DNS notation, e.g.,
     // "com.apportable.Spin"
-    "APPLICATION_IDENTIFIER": "com.zbowling.Spin",
+    "APPLICATION_IDENTIFIER": "com.apportable.SpinInternal.IABv3",
 
     // Short version name for the app, e.g., "1.0"
     // "SHORT_VERSION": "",

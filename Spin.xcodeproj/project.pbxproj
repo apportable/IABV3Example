@@ -22,7 +22,6 @@
 		5B64E82B164373C50043E296 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5B64E82A164373C50043E296 /* Default-568h@2x.png */; };
 		5B64E83D164375D50043E296 /* SpinViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B64E83C164375D50043E296 /* SpinViewController.m */; };
 		5B64E83F164376140043E296 /* SpinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5B64E83E164376140043E296 /* SpinViewController.xib */; };
-		5B64E842164376430043E296 /* SpinView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B64E841164376430043E296 /* SpinView.m */; };
 		5B64E8441643766E0043E296 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B64E8431643766E0043E296 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -49,8 +48,6 @@
 		5B64E83B164375D40043E296 /* SpinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpinViewController.h; sourceTree = "<group>"; };
 		5B64E83C164375D50043E296 /* SpinViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpinViewController.m; sourceTree = "<group>"; };
 		5B64E83E164376140043E296 /* SpinViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SpinViewController.xib; sourceTree = "<group>"; };
-		5B64E840164376430043E296 /* SpinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpinView.h; sourceTree = "<group>"; };
-		5B64E841164376430043E296 /* SpinView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpinView.m; sourceTree = "<group>"; };
 		5B64E8431643766E0043E296 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -119,8 +116,6 @@
 				5B64E824164373C50043E296 /* SpinAppDelegate.m */,
 				5B64E83B164375D40043E296 /* SpinViewController.h */,
 				5B64E83C164375D50043E296 /* SpinViewController.m */,
-				5B64E840164376430043E296 /* SpinView.h */,
-				5B64E841164376430043E296 /* SpinView.m */,
 				4A5FF36B170A243A0081EA88 /* ExtraTests */,
 				5B64E81B164373C50043E296 /* Supporting Files */,
 			);
@@ -213,7 +208,6 @@
 				5B64E821164373C50043E296 /* main.m in Sources */,
 				5B64E825164373C50043E296 /* SpinAppDelegate.m in Sources */,
 				5B64E83D164375D50043E296 /* SpinViewController.m in Sources */,
-				5B64E842164376430043E296 /* SpinView.m in Sources */,
 				4A5FF3611704E3740081EA88 /* SpinIAPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -161,6 +161,7 @@
     NSLog(@"----------------------------paymentQueue:updatedTransactions:");
     BOOL finish = YES;
     for (SKPaymentTransaction *txn in transactions) {
+        NSString *productId = [[txn payment] productIdentifier];
         switch (txn.transactionState) {
             case SKPaymentTransactionStatePurchasing:
                 NSLog(@"SKPaymentTransactionStatePurchasing txn: %@", txn);
@@ -170,15 +171,14 @@
 #ifdef APPORTABLE
                 //in your app, you are going to have to know if the product is consumable or not.
                 // in my test app, all consumable products have consumable in the product identifier
-                if ([[[txn payment] productIdentifier] rangeOfString:@".consumable"].location != NSNotFound) {
-                    NSLog(@"consuming product");
+                if ([productId rangeOfString:@".consumable"].location != NSNotFound) {
+                    NSLog(@"consuming product %@", productId);
                     finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
                     if (!finish){
                         NSLog(@"unable to consume product");
                     }
                 }
 #endif
-
                 break;
             case SKPaymentTransactionStateFailed:
                 NSLog(@"SKPaymentTransactionStateFailed: %@", txn);
@@ -191,15 +191,14 @@
                 //so deal with races, you should give credit here incase you haven't. it's up to you to give credit.
                 //in your app, you are going to have to know if the product is consumable or not.
                 //in my test app, all consumable products have consumable in the product identifier
-                if ([[[txn payment] productIdentifier] rangeOfString:@".consumable"].location != NSNotFound) {
-                    NSLog(@"consuming product");
+                if ([productId rangeOfString:@".consumable"].location != NSNotFound) {
+                    NSLog(@"consuming product %@", productId);
                     finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
                     if (!finish){
                         NSLog(@"unable to consume product");
                     }
                 }
 #endif
-
                 break;
             default:
                 NSLog(@"UNKNOWN SKPaymentTransactionState: %@", txn);

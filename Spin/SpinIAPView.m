@@ -137,6 +137,23 @@
     }
 }
 
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+    // NOTE: Google IAB can sometimes catch spurious errors, so attempt to gracefully handle them here
+    // (For example querying for products "too early" during app startup may result in error, so schedule a refetch here)
+    static int retryTimes = 0;
+    if (++retryTimes > 5)
+    {
+        NSLog(@"Aborting retries for products.");
+        return;
+    }
+    NSLog(@"Attempting refetch of products...");
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self requestProductData];
+    });
+}
+
+#pragma mark -
 
 -(UIButton *)addProductButtonWithName:(NSString *)product price:(NSString *)price {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];

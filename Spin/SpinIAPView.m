@@ -159,8 +159,8 @@
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
     NSLog(@"----------------------------paymentQueue:updatedTransactions:");
-    BOOL finish = YES;
     for (SKPaymentTransaction *txn in transactions) {
+        BOOL finish = NO;
         NSString *productId = [[txn payment] productIdentifier];
         switch (txn.transactionState) {
             case SKPaymentTransactionStatePurchasing:

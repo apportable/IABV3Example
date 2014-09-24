@@ -40,7 +40,6 @@
     return self;
 }
 
-
 - (void)initView
 {    
     _buttons = [NSMutableArray array];
@@ -55,9 +54,10 @@
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [self requestProductData];
 #ifdef APPORTABLE
-        //on IABv3, restoring purchases is cheap. 
-        //we should do this to find any consumable purchases that are consumable 
-        //and consume them before the user buys again to prevent errors
+        // With IABv3, restoring purchases is cheap, so you should initiate a restoreCompletedTransactions during startup.
+        // This will clear out any transactions that failed to "completely complete", (for example during cases where
+        // the network dropped during the process of making a purchase).
+        // NOTE: if you do not consume a prior purchase then it is an error to re-attempt to purchase the same item
         [self restorePurchases];
 #endif
     });
@@ -90,7 +90,6 @@
     NSLog(@"restoring purchases");
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
 }
-
 
 #pragma mark -
 #pragma mark SKProductsRequestDelegate methods
@@ -178,24 +177,13 @@
     NSLog(@"----------------------------paymentQueue:updatedTransactions:");
     for (SKPaymentTransaction *txn in transactions) {
         BOOL finish = NO;
-        NSString *productId = [[txn payment] productIdentifier];
         switch (txn.transactionState) {
             case SKPaymentTransactionStatePurchasing:
                 NSLog(@"SKPaymentTransactionStatePurchasing txn: %@", txn);
                 break;
             case SKPaymentTransactionStatePurchased:
                 NSLog(@"SKPaymentTransactionStatePurchased: %@", txn);
-#ifdef APPORTABLE
-                //in your app, you are going to have to know if the product is consumable or not.
-                // in my test app, all consumable products have consumable in the product identifier
-                if ([productId rangeOfString:@".consumable"].location != NSNotFound) {
-                    NSLog(@"consuming product %@", productId);
-                    finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
-                    if (!finish){
-                        NSLog(@"unable to consume product");
-                    }
-                }
-#endif
+                finish = [self handleTransaction:txn];
                 break;
             case SKPaymentTransactionStateFailed:
                 NSLog(@"SKPaymentTransactionStateFailed: %@", txn);
@@ -204,18 +192,9 @@
                 NSLog(@"SKPaymentTransactionStateRestored: %@", txn);
                 NSLog(@"Original transaction: %@", [txn originalTransaction]);
                 NSLog(@"Original transaction payment: %@", [[txn originalTransaction] payment]);
-#ifdef APPORTABLE
-                //so deal with races, you should give credit here incase you haven't. it's up to you to give credit.
-                //in your app, you are going to have to know if the product is consumable or not.
-                //in my test app, all consumable products have consumable in the product identifier
-                if ([productId rangeOfString:@".consumable"].location != NSNotFound) {
-                    NSLog(@"consuming product %@", productId);
-                    finish = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
-                    if (!finish){
-                        NSLog(@"unable to consume product");
-                    }
-                }
-#endif
+                // To deal with IABv3 race conditions, network outages, app crashes, etc that may occur when purchasing/consuming products,
+                // you should initiate a restoreCompletedTransactions on app startup and consume any restored consumables here.
+                finish = [self handleTransaction:txn];
                 break;
             default:
                 NSLog(@"UNKNOWN SKPaymentTransactionState: %@", txn);
@@ -225,6 +204,32 @@
             [[SKPaymentQueue defaultQueue] finishTransaction:txn];
         }
     }
+}
+
+- (BOOL)handleTransaction:(SKPaymentTransaction *)txn
+{
+    BOOL handled = YES;
+    NSString *productId = [[txn payment] productIdentifier];
+#ifdef APPORTABLE
+    // You are going to have to know if the product is consumable or not -- consumable products are called "unmanaged"
+    // products in your Google Developer Console.
+    // In this example app, all consumable products have ".consumable" in the product identifier, so consume those now
+    if ([productId rangeOfString:@".consumable"].location != NSNotFound) {
+        NSLog(@"Consuming product %@ ...", productId);
+        handled = [[SKPaymentQueue defaultQueue] consumePurchase:txn];
+        if (!handled) {
+            NSLog(@"OOPS, unable to consume product");
+        }
+    }
+#endif
+    
+    if (handled) {
+        // We can now credit the purchase and/or send it to our server for receipt verification
+        // ...
+        NSLog(@"Consumed product %@", productId);
+    }
+    
+    return handled;
 }
 
 - (void)paymentQueue:(SKPaymentQueue *)queue removedTransactions:(NSArray *)transactions

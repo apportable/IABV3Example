@@ -6,11 +6,7 @@ IABV3Example
 With IABv3 it is the app's responsibility to _consume_ all purchases, (even for unmanaged products).  For this purpose
 we have created this sample code.
 
-To enable the IABv3 flow do one of the following:
-
-1.  Add APGoogleIABV3Transitional to your info.plist and set it to true. 
-2.  Set GOOGLEIABV3=yes when compiling and it will append APGoogleIABV3Transitional to your info.plist when compiling. 
-3.  Add "GOOGLEIABV3":true in the options for configuration.json
+To enable the IABv3 purchase flow add `GOOGLEIABV3=yes` when compiling.
 
 We have augmented the SKPaymentQueue.h header with the following category to allow you to consume purchases:
 

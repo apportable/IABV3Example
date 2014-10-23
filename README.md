@@ -6,7 +6,8 @@ IABV3Example
 With IABv3 it is the app's responsibility to _consume_ all purchases, (even for unmanaged products).  For this purpose
 we have created this sample code.
 
-To enable the IABv3 purchase flow add `GOOGLEIABV3=yes` when compiling.
+To enable the IABv3 purchase flow add `GOOGLEIABV3=yes` when compiling.  (As of Apportable SDK v1.1.21, IABv3 is default
+enabled).
 
 We have augmented the SKPaymentQueue.h header with the following category to allow you to consume purchases:
 

@@ -49,7 +49,8 @@
     
     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
 
-    double delayInSeconds = 3.0;
+    // The IABv3 billing service take a bit of time to be ready, so the dispatch_after() is necessary
+    double delayInSeconds = 5.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [self requestProductData];

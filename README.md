@@ -17,9 +17,9 @@ We have augmented the SKPaymentQueue.h header with the following category to all
 @end
 ```
 
-- We recommend calling that method before calling `-[queue finishTransaction:]` on the consumable. We also recommend waiting to call `finishTransaction:` until you receive YES from the `consumePurchase:` call.
+- We recommend calling that method before calling `-[SKPaymentQueue finishTransaction:]` on the consumable. We also recommend waiting to call `finishTransaction:` until you receive YES from the `consumePurchase:` call.
 
-- There are some caveats with using the IABv3 purchase flow. For instance a user may purchase a consumable item, but before receiving the callback from google to award them the item, they might close or kill the app, and they won't receive the purchase! Then they'll try to purchase again, but they won't be able to, because...it has not been consumed yet!  To bypass this scenario, we recommend restoring purchases on startup just to make sure.
+- There are some caveats with using the IABv3 purchase flow. For instance a user may purchase a consumable item, but before receiving the callback from google to award them the item, they might close or kill the app, and they won't receive the purchase! Then they'll try to purchase again, but they won't be able to, because...it has not been consumed yet!  To bypass this scenario, we recommend restoring purchases on startup just to make sure.  The example source incorporates all these best practices and comments their usage.
 
 - To build for IABv3, you will still need to include SIGNING_PUBKEY and ANDROID_KEYSTORE in the env when building with Apportable.
 

@@ -18,7 +18,7 @@ We have added an API for consuming unmanaged products to SKPaymentQueue:
 
 - To build for IABv3, you will still need to include SIGNING_PUBKEY and ANDROID_KEYSTORE in the env when building with Apportable.
 
-- Your app will need to differentiate between "non-consumable" (managed) and "consumable" (unmanaged) products.  You should and only call `consumePurchase:` on the "consumable" (unmanaged) ones.
+- Your app will need to differentiate between "non-consumable" (managed) and "consumable" (unmanaged) products.  You should only call `consumePurchase:` on the "consumable" (unmanaged) ones.
 
 
 Google Developer Console

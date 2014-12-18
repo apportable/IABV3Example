@@ -9,6 +9,13 @@
 
 #import "SpinIAPView.h"
 
+#ifdef APPORTABLE
+//hacking open the way to call this method to generate a fake SKProduct
+@interface SKProduct(ExposeMethod)
+- (id)initWithLocalizedDescription:(NSString *)aDescription title:(NSString *)aTitle price:(NSDecimalNumber *)aPrice priceLocale:(NSLocale *)aPriceLocale productIdentifier:(NSString *)aProductIdentifier internalProductType:(NSString *)aProductType;
+@end
+#endif
+
 @interface SpinIAPView() {
     NSMutableArray *_buttons;
     NSMutableDictionary *_buttonToProduct;
@@ -95,6 +102,18 @@
 #pragma mark -
 #pragma mark SKProductsRequestDelegate methods
 
+#ifdef APPORTABLE
+- (SKProduct*) allocGooglePlayStaticTestProduct:(NSString*) productId title:(NSString*) title
+{
+    return [[SKProduct alloc] initWithLocalizedDescription:title
+                                                     title:title
+                                                     price:[NSDecimalNumber one]
+                                               priceLocale:[NSLocale currentLocale]
+                                         productIdentifier:productId
+                                       internalProductType:@"inapp"];
+}
+#endif
+
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
     for (UIButton *button in _buttons){
@@ -109,7 +128,17 @@
     [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
     [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
     
-    NSArray *products = response.products;
+    NSMutableArray *products = [NSMutableArray array];
+    
+    #ifdef APPORTABLE
+    [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.purchased" title:@"Static Test: Purchased"]];
+    [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.canceled" title:@"Static Test: Cancelled"]];
+    [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.refunded" title:@"Static Test: Refunded"]];
+    [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.item_unavailable" title:@"Static Test: Unavailable"]];
+    #endif
+    
+    [products addObjectsFromArray:response.products];
+    
     for (int i=0; i < [products count]; ++i) {
         SKProduct *product = [products objectAtIndex:i];
         if (product) {
@@ -200,6 +229,16 @@
             default:
                 NSLog(@"UNKNOWN SKPaymentTransactionState: %@", txn);
                 break;
+        }
+        NSLog(@"SKPaymentTransaction id:%@",txn.transactionIdentifier);
+        if( txn.payment != nil )
+        {
+            NSLog(@"SKPaymentTransaction productIdentifier:%@",txn.payment.productIdentifier);
+        }
+        if( txn.error != nil )
+        {
+            NSLog(@"SKPaymentTransaction error:%@",txn.error.localizedDescription);
+            NSLog(@"SKPaymentTransaction error user-info:%@",txn.error.userInfo);
         }
         if (finish) {
             [[SKPaymentQueue defaultQueue] finishTransaction:txn];

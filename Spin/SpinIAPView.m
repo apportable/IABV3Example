@@ -230,6 +230,16 @@
                 NSLog(@"UNKNOWN SKPaymentTransactionState: %@", txn);
                 break;
         }
+        NSLog(@"SKPaymentTransaction id:%@",txn.transactionIdentifier);
+        if( txn.payment != nil )
+        {
+            NSLog(@"SKPaymentTransaction productIdentifier:%@",txn.payment.productIdentifier);
+        }
+        if( txn.error != nil )
+        {
+            NSLog(@"SKPaymentTransaction error:%@",txn.error.localizedDescription);
+            NSLog(@"SKPaymentTransaction error user-info:%@",txn.error.userInfo);
+        }
         if (finish) {
             [[SKPaymentQueue defaultQueue] finishTransaction:txn];
         }

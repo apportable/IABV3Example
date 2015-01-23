@@ -131,10 +131,14 @@
     NSMutableArray *products = [NSMutableArray array];
     
     #ifdef APPORTABLE
+    /* static products may interfere with real transactions ...
+     * (we highly recommend testing IABv3 with real money/transactions to be sure it will work in production)
+     *
     [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.purchased" title:@"Static Test: Purchased"]];
     [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.canceled" title:@"Static Test: Cancelled"]];
     [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.refunded" title:@"Static Test: Refunded"]];
     [products addObject:[self allocGooglePlayStaticTestProduct:@"android.test.item_unavailable" title:@"Static Test: Unavailable"]];
+    */
     #endif
     
     [products addObjectsFromArray:response.products];
